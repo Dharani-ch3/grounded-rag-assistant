@@ -1,0 +1,11 @@
+# One-click free demo on Render: New + > Blueprint > pick this repo.
+# Runs the offline (extractive) answerer, so no API keys or model costs are needed.
+services:
+  - type: web
+    name: grounded-rag-assistant
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: ASSISTANT_PROVIDER
+        value: offline

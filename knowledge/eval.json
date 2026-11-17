@@ -1,0 +1,316 @@
+{
+ "_comment": "Hand-written evaluation set for the sample knowledge base. Run with: gra eval",
+ "cases": [
+  {
+   "id": 1,
+   "user": "ana",
+   "question": "How many PTO days do full-time employees get per year?",
+   "category": "answerable",
+   "expect": [
+    "20 days"
+   ]
+  },
+  {
+   "id": 2,
+   "user": "dev",
+   "question": "How much vacation do I get each year?",
+   "category": "answerable",
+   "expect": [
+    "20 days"
+   ]
+  },
+  {
+   "id": 3,
+   "user": "ben",
+   "question": "How many unused PTO days can I carry over into next year?",
+   "category": "answerable",
+   "expect": [
+    "up to 5"
+   ]
+  },
+  {
+   "id": 4,
+   "user": "carla",
+   "question": "How far in advance do I need to submit a PTO request?",
+   "category": "answerable",
+   "expect": [
+    "2 weeks"
+   ]
+  },
+  {
+   "id": 5,
+   "user": "ana",
+   "question": "How many paid sick days do full-time employees get?",
+   "category": "answerable",
+   "expect": [
+    "10 days"
+   ]
+  },
+  {
+   "id": 6,
+   "user": "dev",
+   "question": "What is the daily meal limit when traveling for work?",
+   "category": "answerable",
+   "expect": [
+    "$75"
+   ]
+  },
+  {
+   "id": 7,
+   "user": "ana",
+   "question": "Do I need a receipt for a $40 expense?",
+   "category": "answerable",
+   "expect": [
+    "$25"
+   ]
+  },
+  {
+   "id": 8,
+   "user": "ben",
+   "question": "How long do I have to submit an expense report?",
+   "category": "answerable",
+   "expect": [
+    "30 days"
+   ]
+  },
+  {
+   "id": 9,
+   "user": "carla",
+   "question": "What is the mileage reimbursement rate?",
+   "category": "answerable",
+   "expect": [
+    "$0.65"
+   ]
+  },
+  {
+   "id": 10,
+   "user": "ana",
+   "question": "How many identifiers do I need to confirm a patient's identity?",
+   "category": "answerable",
+   "expect": [
+    "two identifiers"
+   ]
+  },
+  {
+   "id": 11,
+   "user": "ana",
+   "question": "What temperature range must the vaccine fridge stay in?",
+   "category": "answerable",
+   "expect": [
+    "2°C",
+    "8°C"
+   ]
+  },
+  {
+   "id": 12,
+   "user": "ana",
+   "question": "What should I do if the vaccine refrigerator reading is out of range?",
+   "category": "answerable",
+   "expect": [
+    "pharmacy"
+   ]
+  },
+  {
+   "id": 13,
+   "user": "dev",
+   "question": "What extension is the IT service desk?",
+   "category": "answerable",
+   "expect": [
+    "4357"
+   ]
+  },
+  {
+   "id": 14,
+   "user": "ana",
+   "question": "Can I use text message codes for multi-factor authentication?",
+   "category": "answerable",
+   "expect": [
+    "not allowed"
+   ]
+  },
+  {
+   "id": 15,
+   "user": "ben",
+   "question": "How quickly must on-call respond to a Sev1 security incident?",
+   "category": "answerable",
+   "expect": [
+    "15 minutes"
+   ]
+  },
+  {
+   "id": 16,
+   "user": "carla",
+   "question": "How long are patient medical records retained?",
+   "category": "answerable",
+   "expect": [
+    "10 years"
+   ]
+  },
+  {
+   "id": 17,
+   "user": "dev",
+   "question": "How long is business email kept?",
+   "category": "answerable",
+   "expect": [
+    "3 years"
+   ]
+  },
+  {
+   "id": 18,
+   "user": "carla",
+   "question": "What is the annual bonus target for executives?",
+   "category": "answerable",
+   "expect": [
+    "30%"
+   ]
+  },
+  {
+   "id": 19,
+   "user": "ben",
+   "question": "What should I do if the vaccine refrigerator reading is out of range?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": 20,
+   "user": "ana",
+   "question": "How quickly must on-call respond to a Sev1 security incident?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": 21,
+   "user": "dev",
+   "question": "What is the annual bonus target for executives?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": 22,
+   "user": "dev",
+   "question": "How many identifiers do I need to confirm a patient's identity?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": 23,
+   "user": "ben",
+   "question": "How many days per week can I work remotely?",
+   "category": "draft",
+   "abstain": true
+  },
+  {
+   "id": 24,
+   "user": "dev",
+   "question": "How much does the company reimburse for home office equipment?",
+   "category": "draft",
+   "abstain": true
+  },
+  {
+   "id": 25,
+   "user": "ana",
+   "question": "What is the dress code for nurses?",
+   "category": "unanswerable",
+   "abstain": true
+  },
+  {
+   "id": 26,
+   "user": "dev",
+   "question": "When is the company holiday party?",
+   "category": "unanswerable",
+   "abstain": true
+  },
+  {
+   "id": 27,
+   "user": "ben",
+   "question": "Does the company offer a gym membership discount?",
+   "category": "unanswerable",
+   "abstain": true
+  },
+  {
+   "id": 28,
+   "user": "carla",
+   "question": "What is the parental leave policy?",
+   "category": "unanswerable",
+   "abstain": true
+  },
+  {
+   "id": 29,
+   "user": "ana",
+   "question": "Who owns the expense reimbursement policy?",
+   "category": "graph",
+   "expect": [
+    "Dev Patel"
+   ]
+  },
+  {
+   "id": 30,
+   "user": "dev",
+   "question": "Who approved the paid time off policy?",
+   "category": "graph",
+   "expect": [
+    "Priya Shah"
+   ]
+  },
+  {
+   "id": 31,
+   "user": "ana",
+   "question": "Who do I report to?",
+   "category": "graph",
+   "expect": [
+    "Maria Okafor"
+   ]
+  },
+  {
+   "id": 32,
+   "user": "ben",
+   "question": "Who owns the incident response runbook?",
+   "category": "graph",
+   "expect": [
+    "Sam Lee"
+   ]
+  },
+  {
+   "id": 33,
+   "user": "ana",
+   "question": "Who should I contact about vaccine refrigerator problems?",
+   "category": "graph",
+   "expect": [
+    "Maria Okafor"
+   ]
+  },
+  {
+   "id": 34,
+   "user": "ana",
+   "question": "Which documents can nurses read?",
+   "category": "graph",
+   "expect": [
+    "Patient Intake Procedure",
+    "Vaccine Refrigerator Monitoring"
+   ]
+  },
+  {
+   "id": 35,
+   "user": "dev",
+   "question": "Who works in Finance?",
+   "category": "graph",
+   "expect": [
+    "Dev Patel"
+   ]
+  },
+  {
+   "id": 36,
+   "user": "ana",
+   "question": "Who owns the security incident response runbook?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": 37,
+   "user": "dev",
+   "question": "Who should I contact about vaccine refrigerator problems?",
+   "category": "access",
+   "abstain": true
+  }
+ ]
+}

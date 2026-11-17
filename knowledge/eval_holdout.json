@@ -1,0 +1,173 @@
+{
+ "_comment": "Held-out questions written after the engine was tuned on eval.json and never used for tuning. Run with: gra eval --holdout",
+ "cases": [
+  {
+   "id": "h1",
+   "user": "ben",
+   "question": "What's the PTO accrual for a full-time employee?",
+   "category": "answerable",
+   "expect": [
+    "20 days"
+   ]
+  },
+  {
+   "id": "h2",
+   "user": "carla",
+   "question": "When do unused PTO days expire?",
+   "category": "answerable",
+   "expect": [
+    "December 31"
+   ]
+  },
+  {
+   "id": "h3",
+   "user": "dev",
+   "question": "How quickly does my manager respond to a time off request?",
+   "category": "answerable",
+   "expect": [
+    "3 business days"
+   ]
+  },
+  {
+   "id": "h4",
+   "user": "ana",
+   "question": "Is alcohol reimbursable on a work trip?",
+   "category": "answerable",
+   "expect": [
+    "not reimbursable"
+   ]
+  },
+  {
+   "id": "h5",
+   "user": "ben",
+   "question": "Are commuting costs reimbursed?",
+   "category": "answerable",
+   "expect": [
+    "not reimbursable"
+   ]
+  },
+  {
+   "id": "h6",
+   "user": "ana",
+   "question": "When should I repeat a blood pressure reading?",
+   "category": "answerable",
+   "expect": [
+    "5 minutes"
+   ]
+  },
+  {
+   "id": "h7",
+   "user": "ana",
+   "question": "Can a family member interpret for a patient?",
+   "category": "answerable",
+   "expect": [
+    "should not interpret"
+   ]
+  },
+  {
+   "id": "h8",
+   "user": "ana",
+   "question": "What do I do with vaccines during a long power outage?",
+   "category": "answerable",
+   "expect": [
+    "backup unit"
+   ]
+  },
+  {
+   "id": "h9",
+   "user": "dev",
+   "question": "How long does a VPN session last before I have to sign in again?",
+   "category": "answerable",
+   "expect": [
+    "12 hours"
+   ]
+  },
+  {
+   "id": "h10",
+   "user": "ben",
+   "question": "What must I do before reimaging a compromised server?",
+   "category": "answerable",
+   "expect": [
+    "Preserve logs"
+   ]
+  },
+  {
+   "id": "h11",
+   "user": "carla",
+   "question": "How long are audit logs kept?",
+   "category": "answerable",
+   "expect": [
+    "6 years"
+   ]
+  },
+  {
+   "id": "h12",
+   "user": "dev",
+   "question": "When is the executive bonus paid?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": "h13",
+   "user": "ana",
+   "question": "Where are emergency admin credentials stored?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": "h14",
+   "user": "ben",
+   "question": "How do I check a patient's identity?",
+   "category": "access",
+   "abstain": true
+  },
+  {
+   "id": "h15",
+   "user": "carla",
+   "question": "Can non-clinical staff work from home?",
+   "category": "draft",
+   "abstain": true
+  },
+  {
+   "id": "h16",
+   "user": "ana",
+   "question": "Does the company pay for my cell phone bill?",
+   "category": "unanswerable",
+   "abstain": true
+  },
+  {
+   "id": "h17",
+   "user": "dev",
+   "question": "What is the 401k match?",
+   "category": "unanswerable",
+   "abstain": true
+  },
+  {
+   "id": "h18",
+   "user": "ben",
+   "question": "Who approved the VPN guide?",
+   "category": "graph",
+   "expect": [
+    "Sam Lee"
+   ]
+  },
+  {
+   "id": "h19",
+   "user": "carla",
+   "question": "Who is Ben's manager?",
+   "category": "graph",
+   "expect": [
+    "Sam Lee"
+   ]
+  },
+  {
+   "id": "h20",
+   "user": "dev",
+   "question": "Who should I ask about data retention questions?",
+   "category": "graph",
+   "expect": [
+    "Omar Haddad"
+   ]
+  }
+ ]
+}

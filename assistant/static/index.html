@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grounded RAG Assistant</title>
+<meta name="description" content="A RAG assistant that answers only from approved knowledge the asker may see, cites every sentence, and says it doesn't know instead of guessing." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23111'/><path d='M21 12.5A6 6 0 1 0 22 17h-6' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo">G</span>
+    <div>
+      <h1>Grounded RAG Assistant</h1>
+      <p>Answers only from approved knowledge you're allowed to see, or says it doesn't know.</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <span id="health" class="pill">connecting…</span>
+    <a id="docsLink" class="ghost" href="/docs" target="_blank" rel="noopener">API docs</a>
+    <a class="ghost" href="https://github.com/Dharani-ch3/grounded-rag-assistant" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-view="ask" role="tab">Ask</button>
+  <button class="tab" data-view="knowledge" role="tab">Knowledge &amp; graph</button>
+  <button class="tab" data-view="eval" role="tab">Evaluation</button>
+</nav>
+
+<main class="layout">
+  <aside class="panel side">
+    <section>
+      <h2>Asking as</h2>
+      <div id="users" class="users" role="radiogroup" aria-label="Asking as"></div>
+      <p class="hint">What you can ask about depends on who you are. Switch people and ask the same question.</p>
+    </section>
+    <section id="suggestBox">
+      <h2>Try asking</h2>
+      <div id="suggestions" class="suggestions"></div>
+    </section>
+  </aside>
+
+  <!-- ============ ASK ============ -->
+  <section id="view-ask" class="view panel chat">
+    <div id="thread" class="thread" aria-live="polite">
+      <div id="welcome" class="empty">
+        <p><strong>Ask a policy question as Ana, a nurse.</strong> Pick a suggestion on the left or type your own.</p>
+        <p class="muted">Every answer cites the passage it came from. Drafts, outdated versions and documents Ana isn't allowed to read are filtered out <em>before</em> search, so they can't leak into an answer. When nothing she can read answers the question, the assistant says so.</p>
+        <p class="muted">Then click <b>Compare with naive RAG</b> on an answer to see what the same question gets with these guardrails off.</p>
+      </div>
+    </div>
+    <form id="askForm" class="composer">
+      <textarea id="question" rows="2" placeholder="Ask about PTO, expenses, patient intake, VPN, data retention, who owns what…" aria-label="Question"></textarea>
+      <div class="composer-row">
+        <label class="switch" title="Guardrails: access filter, approved-only, grounding check, abstention">
+          <input id="guardrails" type="checkbox" checked />
+          <span class="slider"></span>
+          <span id="guardLabel">Guardrails on</span>
+        </label>
+        <button id="askBtn" class="btn">Ask</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ============ KNOWLEDGE ============ -->
+  <section id="view-knowledge" class="view panel" hidden>
+    <div class="section-head">
+      <div>
+        <h2>Documents <span id="docCount" class="count"></span></h2>
+        <p class="muted">What <b id="kbUser"></b> can see. Restricted documents aren't listed at all. Knowledge admins also see drafts and archived versions.</p>
+      </div>
+      <button id="newDocBtn" class="btn outline small">Propose a document</button>
+    </div>
+    <div class="table-wrap">
+      <table class="docs">
+        <thead><tr><th>Document</th><th>Status</th><th>Owner</th><th>Readable by</th><th></th></tr></thead>
+        <tbody id="docRows"></tbody>
+      </table>
+    </div>
+
+    <form id="docForm" class="card doc-form" hidden>
+      <h3>Propose a document</h3>
+      <p class="muted">New documents start as drafts. They can't be used in answers until a knowledge admin other than the author approves them (try Carla or Omar).</p>
+      <input id="docTitle" placeholder="Title, e.g. Remote Work Policy" required />
+      <label class="field-label">Replaces (optional)</label>
+      <select id="docSupersedes"><option value="">Nothing, it's a new document</option></select>
+      <label class="field-label">Readable by</label>
+      <div id="docAudience" class="checks"></div>
+      <textarea id="docText" rows="7" placeholder="## Section heading&#10;Policy text…" required></textarea>
+      <div class="row"><button class="btn small">Save as draft</button><button type="button" id="docCancel" class="btn outline small">Cancel</button></div>
+    </form>
+
+    <div class="section-head graph-head">
+      <div>
+        <h2>Knowledge graph</h2>
+        <p class="muted">People, roles, departments and the documents this person can see. Hover a node to trace its links. Relationship questions are answered from this graph with fixed, parameterized queries.</p>
+      </div>
+    </div>
+    <div id="graph" class="graph"></div>
+  </section>
+
+  <!-- ============ EVAL ============ -->
+  <section id="view-eval" class="view panel" hidden>
+    <div class="section-head">
+      <div>
+        <h2>Evaluation: guardrails on vs off</h2>
+        <p class="muted">The same questions, asked by different employees, answered twice: once by naive RAG (no filters, always answers) and once with guardrails. Errors are classified automatically from the citations and the access policy.</p>
+      </div>
+      <div class="row">
+        <button id="evalBtn" class="btn small">Run tuning set (37)</button>
+        <button id="holdoutBtn" class="btn outline small">Run held-out set (20)</button>
+      </div>
+    </div>
+    <div id="evalOut">
+      <div class="empty"><p>Click a button to run the evaluation in your browser. It takes a second or two.</p>
+      <p class="muted">The tuning set was written alongside the engine. The held-out set was written afterwards and never used for tuning, so it's the fairer number.</p></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="docDialog">
+  <form method="dialog">
+    <header><span id="dlgTitle"></span><button aria-label="Close">×</button></header>
+    <div id="dlgBody" class="dlg-body"></div>
+  </form>
+</dialog>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

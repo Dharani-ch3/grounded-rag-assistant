@@ -1,0 +1,243 @@
+{
+  "_comment": "Fictional organization used by the demo. In production this comes from your identity provider (Okta, Entra ID) and HR system.",
+  "orgs": [
+    {
+      "id": "clinical-ops",
+      "name": "Clinical Operations",
+      "aliases": [
+        "clinical",
+        "clinic",
+        "nursing"
+      ]
+    },
+    {
+      "id": "it",
+      "name": "IT",
+      "aliases": [
+        "it",
+        "information technology",
+        "tech support"
+      ]
+    },
+    {
+      "id": "hr",
+      "name": "Human Resources",
+      "aliases": [
+        "hr",
+        "people team"
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "Finance",
+      "aliases": [
+        "finance",
+        "accounting"
+      ]
+    },
+    {
+      "id": "compliance",
+      "name": "Compliance",
+      "aliases": [
+        "compliance",
+        "privacy",
+        "legal"
+      ]
+    },
+    {
+      "id": "leadership",
+      "name": "Leadership",
+      "aliases": [
+        "leadership",
+        "executives"
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "id": "employee",
+      "name": "Employee",
+      "aliases": [
+        "employee",
+        "employees",
+        "staff",
+        "everyone"
+      ]
+    },
+    {
+      "id": "nurse",
+      "name": "Nurse",
+      "aliases": [
+        "nurse",
+        "nurses",
+        "nursing staff"
+      ]
+    },
+    {
+      "id": "nurse_manager",
+      "name": "Nurse Manager",
+      "aliases": [
+        "nurse manager",
+        "nurse managers"
+      ]
+    },
+    {
+      "id": "it_engineer",
+      "name": "IT Engineer",
+      "aliases": [
+        "it engineer",
+        "it engineers",
+        "engineers"
+      ]
+    },
+    {
+      "id": "security_lead",
+      "name": "Security Lead",
+      "aliases": [
+        "security lead",
+        "security"
+      ]
+    },
+    {
+      "id": "hr_manager",
+      "name": "HR Manager",
+      "aliases": [
+        "hr manager",
+        "hr managers"
+      ]
+    },
+    {
+      "id": "finance_analyst",
+      "name": "Finance Analyst",
+      "aliases": [
+        "finance analyst",
+        "finance analysts",
+        "analysts"
+      ]
+    },
+    {
+      "id": "compliance_officer",
+      "name": "Compliance Officer",
+      "aliases": [
+        "compliance officer"
+      ]
+    },
+    {
+      "id": "executive",
+      "name": "Executive",
+      "aliases": [
+        "executive",
+        "executives"
+      ]
+    },
+    {
+      "id": "knowledge_admin",
+      "name": "Knowledge Admin",
+      "aliases": [
+        "knowledge admin",
+        "knowledge admins"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "ana",
+      "name": "Ana Torres",
+      "title": "Registered Nurse",
+      "org": "clinical-ops",
+      "roles": [
+        "employee",
+        "nurse"
+      ],
+      "manager": "maria"
+    },
+    {
+      "id": "maria",
+      "name": "Maria Okafor",
+      "title": "Nurse Manager",
+      "org": "clinical-ops",
+      "roles": [
+        "employee",
+        "nurse",
+        "nurse_manager"
+      ],
+      "manager": "priya"
+    },
+    {
+      "id": "ben",
+      "name": "Ben Carter",
+      "title": "IT Engineer",
+      "org": "it",
+      "roles": [
+        "employee",
+        "it_engineer"
+      ],
+      "manager": "sam"
+    },
+    {
+      "id": "sam",
+      "name": "Sam Lee",
+      "title": "Security Lead",
+      "org": "it",
+      "roles": [
+        "employee",
+        "it_engineer",
+        "security_lead"
+      ],
+      "manager": "priya"
+    },
+    {
+      "id": "carla",
+      "name": "Carla Mendes",
+      "title": "HR Manager",
+      "org": "hr",
+      "roles": [
+        "employee",
+        "hr_manager",
+        "knowledge_admin"
+      ],
+      "manager": "priya"
+    },
+    {
+      "id": "dev",
+      "name": "Dev Patel",
+      "title": "Finance Analyst",
+      "org": "finance",
+      "roles": [
+        "employee",
+        "finance_analyst"
+      ],
+      "manager": "priya"
+    },
+    {
+      "id": "omar",
+      "name": "Omar Haddad",
+      "title": "Compliance Officer",
+      "org": "compliance",
+      "roles": [
+        "employee",
+        "compliance_officer",
+        "knowledge_admin"
+      ],
+      "manager": "priya"
+    },
+    {
+      "id": "priya",
+      "name": "Priya Shah",
+      "title": "Chief Operating Officer",
+      "org": "leadership",
+      "roles": [
+        "employee",
+        "executive"
+      ],
+      "manager": null
+    }
+  ],
+  "demo_users": [
+    "ana",
+    "ben",
+    "carla",
+    "dev",
+    "omar"
+  ]
+}
