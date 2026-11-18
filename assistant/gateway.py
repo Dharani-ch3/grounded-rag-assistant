@@ -1,7 +1,7 @@
 """Model gateway: one interface for every model, cloud or local.
 
 Engine code calls `provider.complete(system, user)` and never imports a vendor SDK, so
-switching Bedrock -> Claude API -> OpenAI -> a local model on Ollama is a config change.
+switching Bedrock -> Anthropic -> OpenAI -> a local model on Ollama is a config change.
 `offline` uses no model: answers are quoted sentences, which keeps the public demo free
 and lets the assistant run fully air-gapped.
 """
@@ -67,6 +67,8 @@ class AnthropicProvider:
         self.key = os.environ.get("ANTHROPIC_API_KEY", "")
 
     def complete(self, system: str, user: str, json_mode: bool = False) -> str:
+        if not self.model:
+            raise ProviderError("Set ANTHROPIC_MODEL to the Anthropic model id you want to use")
         data = _post(
             "https://api.anthropic.com/v1/messages",
             {"x-api-key": self.key, "anthropic-version": "2023-06-01"},
@@ -82,7 +84,7 @@ class AnthropicProvider:
 
 
 class BedrockProvider:
-    """Amazon Bedrock via the Converse API (works with Claude, Llama, Mistral, Titan models)."""
+    """Amazon Bedrock via the Converse API (works with Amazon Nova, Llama, Mistral and other Bedrock models)."""
 
     name = "bedrock"
 
@@ -144,7 +146,7 @@ def is_configured(name: str) -> bool:
     return {
         "offline": True,
         "openai": bool(env("OPENAI_API_KEY")),
-        "anthropic": bool(env("ANTHROPIC_API_KEY")),
+        "anthropic": bool(env("ANTHROPIC_API_KEY") and env("ANTHROPIC_MODEL")),
         "bedrock": bool(env("AWS_ACCESS_KEY_ID") or env("AWS_PROFILE") or env("AWS_ROLE_ARN")),
         "ollama": bool(env("OLLAMA_URL")),
     }.get(name, name in PROVIDERS)
@@ -164,7 +166,7 @@ def list_providers(settings: Settings) -> list[dict[str, Any]]:
     models = {
         "offline": "extractive (no model)",
         "openai": settings.openai_model,
-        "anthropic": settings.anthropic_model,
+        "anthropic": settings.anthropic_model or "set ANTHROPIC_MODEL",
         "bedrock": settings.bedrock_model,
         "ollama": settings.ollama_model,
     }

@@ -30,8 +30,8 @@ class Settings:
     llm_router: bool = False  # let the model pick graph intents (from a fixed menu)
     openai_model: str = "gpt-4o-mini"
     openai_embed_model: str = "text-embedding-3-small"
-    anthropic_model: str = "claude-sonnet-5-5"
-    bedrock_model: str = "anthropic.claude-3-5-haiku-20241022-v1:0"
+    anthropic_model: str = ""  # set ANTHROPIC_MODEL to an Anthropic model id
+    bedrock_model: str = "amazon.nova-micro-v1:0"
     bedrock_embed_model: str = "amazon.titan-embed-text-v2:0"
     aws_region: str = "us-east-1"
     ollama_url: str = "http://localhost:11434"
@@ -59,8 +59,8 @@ def get_settings() -> Settings:
         llm_router=env("ASSISTANT_LLM_ROUTER", "false").lower() in {"1", "true", "yes"},
         openai_model=env("OPENAI_MODEL", "gpt-4o-mini"),
         openai_embed_model=env("OPENAI_EMBED_MODEL", "text-embedding-3-small"),
-        anthropic_model=env("ANTHROPIC_MODEL", "claude-sonnet-5-5"),
-        bedrock_model=env("BEDROCK_MODEL", "anthropic.claude-3-5-haiku-20241022-v1:0"),
+        anthropic_model=env("ANTHROPIC_MODEL", ""),
+        bedrock_model=env("BEDROCK_MODEL", "amazon.nova-micro-v1:0"),
         bedrock_embed_model=env("BEDROCK_EMBED_MODEL", "amazon.titan-embed-text-v2:0"),
         aws_region=env("AWS_REGION", "us-east-1"),
         ollama_url=env("OLLAMA_URL", "http://localhost:11434").rstrip("/"),

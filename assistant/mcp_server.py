@@ -1,10 +1,10 @@
-"""MCP server: lets Claude, Cursor or any MCP client ask the knowledge base as a tool.
+"""MCP server: lets Cursor or any MCP client ask the knowledge base as a tool.
 
 The MCP client acts as one directory user, set with ASSISTANT_MCP_USER (default: ana),
 so an agent gets exactly the access that person has and no more.
 
 Run over stdio:   python -m assistant.mcp_server
-Claude Desktop / Cursor config:
+MCP client config (e.g. Cursor):
     {"mcpServers": {"grounded-rag": {"command": "python", "args": ["-m", "assistant.mcp_server"],
                                      "cwd": "/path/to/grounded-rag-assistant",
                                      "env": {"ASSISTANT_MCP_USER": "ana"}}}}

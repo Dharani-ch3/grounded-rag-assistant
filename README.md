@@ -94,7 +94,7 @@ Every external piece sits behind a small interface, and the in-memory defaults n
 
 | Piece | Default | Also supported | Set with |
 |---|---|---|---|
-| Answer model | `offline`: quotes the best sentences, no model | **Amazon Bedrock** (Converse API), Anthropic Claude, OpenAI, Ollama (local) | `ASSISTANT_PROVIDER` |
+| Answer model | `offline`: quotes the best sentences, no model | **Amazon Bedrock** (Converse API), Anthropic, OpenAI, Ollama (local) | `ASSISTANT_PROVIDER` |
 | Embeddings | Local feature hashing | Bedrock Titan, OpenAI, Ollama | `ASSISTANT_EMBEDDER` |
 | Vector store | In-memory | **Pinecone**, **Weaviate** (access filter pushed into the query) | `ASSISTANT_VECTOR_STORE` |
 
@@ -140,7 +140,7 @@ What the assistant may answer depends on who asks, so every request names a user
 - **Demo mode** (default): the caller says who they are, which lets the web console switch between employees. Never expose this mode on a real network.
 - **Keyed mode**: set `ASSISTANT_API_KEYS="KEY1:ana,KEY2:omar"` and send `X-API-Key`. The user comes from the key and anything the caller claims is ignored. In production, put SSO in front and map the identity provider's user to a directory user the same way.
 
-### Use it from Claude or Cursor (MCP)
+### Use it from Cursor or any MCP client
 
 ```json
 {"mcpServers": {"grounded-rag": {
@@ -166,7 +166,7 @@ assistant/
   graph.py         knowledge graph and its fixed lookups
   router.py        graph vs documents vs both; optional LLM routing from a fixed menu
   evaluation.py    naive vs guardrails scoring with automatic error classes
-  gateway.py       Bedrock, Claude, OpenAI, Ollama behind one interface
+  gateway.py       Bedrock, Anthropic, OpenAI, Ollama behind one interface
   backends/        Pinecone and Weaviate adapters
   api.py  bridge.py  mcp_server.py  cli.py  static/
 knowledge/         sample documents, directory, evaluation sets
