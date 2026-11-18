@@ -56,6 +56,8 @@ flowchart LR
 | **Knowledge graph for relationships** | Users, roles, departments and documents with `OWNS`, `APPROVED`, `CAN_READ`, `MEMBER_OF`, `REPORTS_TO`, `SUPERSEDES` edges. The model never writes graph queries: questions map to a fixed set of lookups where only the parameters change, so there's nothing to inject. Every lookup that returns documents applies the same access rule as search. | [`graph.py`](assistant/graph.py), [`router.py`](assistant/router.py) |
 | **Governance** | New documents start as drafts. Only knowledge admins can approve, and never their own documents. Every question, edit and approval goes to an audit log. | [`core.py`](assistant/core.py) |
 
+Greetings and small talk ("hi", "thanks", "help") aren't searched at all: they get a short reply listing the documents that person can ask about.
+
 Click any answer's **How this answer was built** to see the route, the retrieved passages with their BM25 and vector ranks, what was filtered out, the per-sentence grounding verdicts and, for graph answers, the exact lookup and its parameters:
 
 ![A graph answer with its trace and graph lookup](docs/graph-answer.png)
