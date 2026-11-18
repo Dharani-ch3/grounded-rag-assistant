@@ -6,6 +6,8 @@ Most enterprise RAG demos search everything and let the model write whatever sou
 
 **[▶ Try the live demo](https://dharani-ch3.github.io/grounded-rag-assistant/)**: the real Python assistant running in your browser on WebAssembly ([Pyodide](https://pyodide.org)). No server, no sign-up. Pick who you are (a nurse, an IT engineer, an HR manager, a finance analyst or a compliance officer), ask a question, then click **Compare with naive RAG** to see what the same question gets with the guardrails off.
 
+The same assistant also runs as a real server on Render: **[web console](https://grounded-rag-assistant.onrender.com)** · **[interactive API docs](https://grounded-rag-assistant.onrender.com/docs)** (free tier, so the first request after a quiet spell takes about a minute to wake it).
+
 [![CI](https://github.com/Dharani-ch3/grounded-rag-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Dharani-ch3/grounded-rag-assistant/actions/workflows/ci.yml)
 [![Live demo](https://github.com/Dharani-ch3/grounded-rag-assistant/actions/workflows/pages.yml/badge.svg)](https://dharani-ch3.github.io/grounded-rag-assistant/)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Dharani-ch3/grounded-rag-assistant)
