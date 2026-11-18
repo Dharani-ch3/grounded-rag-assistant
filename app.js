@@ -156,9 +156,10 @@ function renderTrace(r) {
     }
   }
   if (t.abstain_reason) body.append(el("p", {}, el("b", {}, "Why it abstained: "), t.abstain_reason));
-  if (r.graph && r.graph.cypher) {
-    body.append(el("h4", {}, "Graph query (fixed template, parameters only)"));
-    body.append(el("pre", { class: "code" }, r.graph.cypher + "\n\n// params: " + JSON.stringify(r.graph.params)));
+  if (r.graph && r.graph.lookup) {
+    body.append(el("h4", {}, "Graph lookup (fixed, only the parameters change)"));
+    body.append(el("p", {}, r.graph.lookup));
+    body.append(el("pre", { class: "code" }, "params: " + JSON.stringify(r.graph.params)));
   }
   body.append(el("p", { class: "muted" }, `${r.latency_ms} ms · provider: ${r.provider}`));
   return el("details", { class: "trace" }, el("summary", {}, "How this answer was built"), body);
