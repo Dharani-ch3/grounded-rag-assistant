@@ -125,3 +125,18 @@ def test_input_validation(assistant):
         assistant.ask("ana", "x", mode="yolo")
     with pytest.raises(NotFound):
         assistant.ask("mallory", "Hi")
+
+
+@pytest.mark.parametrize("text", ["hi", "Hello!", "hey there", "good morning", "help", "what can you do?", "???"])
+def test_greetings_get_a_friendly_reply_not_a_search(assistant, text):
+    for mode in ("grounded", "naive"):
+        r = assistant.ask("omar", text, mode)
+        assert r["route"]["kind"] == "chat" and not r["abstained"] and r["citations"] == []
+        assert r["answer"].startswith("Hi Omar!")
+        # Only documents Omar may read are offered as topics.
+        assert "Executive Compensation" not in r["answer"] and "Data Retention Policy" in r["answer"]
+
+
+def test_thanks_and_real_questions(assistant):
+    assert assistant.ask("ana", "thanks!")["answer"].startswith("You're welcome")
+    assert assistant.ask("ana", "hi, how many PTO days do I get per year?")["route"]["kind"] == "documents"

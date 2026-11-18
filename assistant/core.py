@@ -48,6 +48,15 @@ _CONTACT_WORDS = set(
 )
 
 
+# Greetings, thanks and "what can you do?" aren't policy questions. Answering them with
+# "I can't answer that" is unfriendly, and searching for them returns random passages.
+_GREETING = re.compile(
+    r"^(hi|hello|hey|hiya|howdy|yo|good (morning|afternoon|evening)|greetings)\b[\s!.,]*(there|team|all)?[\s!.]*$", re.I
+)
+_THANKS = re.compile(r"^(thanks|thank you|thx|ty|ok|okay|cool|great|got it|bye|goodbye)\b[\s!.,a-z]*$", re.I)
+_HELP = re.compile(r"^(help|what can you do|what do you (do|know)|how does this work|who are you)\b[\s?!.]*$", re.I)
+
+
 class NotFound(LookupError):
     pass
 
@@ -143,6 +152,10 @@ class Assistant:
         flt = AccessFilter(tuple(asker.roles) if guarded else None)
         candidates = [d.id for d in self.kb.docs.values() if not guarded or self.kb.decide(asker, d).allowed]
 
+        chat = self._small_talk(question, asker)
+        if chat is not None:
+            return chat
+
         if llm is not None and self.settings.llm_router:
             rt = route_with_llm(llm, question, asker, self.kb, candidates)
         else:
@@ -177,6 +190,45 @@ class Assistant:
             cited=sorted({c["doc_id"] for c in result["citations"]}),
         )
         return result
+
+    def _small_talk(self, question: str, asker: User) -> dict[str, Any] | None:
+        """A friendly reply for greetings, thanks and "help", or None for real questions.
+        Text with no searchable words at all ("???", "hmm") is treated as small talk too."""
+        q = question.strip()
+        if _THANKS.match(q):
+            text = "You're welcome! Ask me anything else about Ridgeway Health's policies and procedures."
+        elif _GREETING.match(q) or _HELP.match(q) or not content_terms(q):
+            topics = sorted({d.title for d in self.kb.docs.values() if self.kb.decide(asker, d).allowed})
+            listed = ", ".join(topics[:-1]) + f" and {topics[-1]}" if len(topics) > 1 else "".join(topics)
+            text = (
+                f"Hi {asker.name.split()[0]}! I answer questions about Ridgeway Health's policies and procedures, "
+                f"using only approved documents you're allowed to read, and I cite every answer. "
+                f"You can ask about the {listed}"
+                + (", or relationship questions like who owns a policy or who you report to." if topics else ".")
+            )
+        else:
+            return None
+        self._log(asker.id, "ask", question=q, mode="chat", route="chat", abstained=False, cited=[])
+        return {
+            "id": f"ask_{uuid.uuid4().hex[:10]}",
+            "user": self._person(asker.id),
+            "question": q,
+            "mode": "grounded",
+            "provider": "offline",
+            "route": {
+                "kind": "chat",
+                "intent": None,
+                "params": {},
+                "reason": "Greeting or small talk, not a policy question",
+                "by": "rules",
+            },
+            "answer": text,
+            "abstained": False,
+            "citations": [],
+            "graph": None,
+            "trace": {"retrieved": [], "excluded": {}, "confidence": None, "verification": [], "draft": ""},
+            "latency_ms": 0.0,
+        }
 
     def _retrieve(self, result: dict[str, Any], asker: User, question: str, flt: AccessFilter) -> list[Source]:
         hits = self.retriever.search(question, flt, k=self.settings.top_k)

@@ -5,7 +5,7 @@ const $ = (id) => document.getElementById(id);
 const state = { users: [], user: "ana", view: "ask", busy: false, roles: [], docs: [] };
 const COLORS = { ana: "#0f766e", ben: "#2f4bd8", carla: "#9333ea", dev: "#b45309", omar: "#be123c" };
 const POLICY_FLAG = { draft: "unapproved draft", archived: "outdated version", no_access: "no access" };
-const ROUTE_LABEL = { documents: "document search", graph: "knowledge graph", both: "search + graph" };
+const ROUTE_LABEL = { documents: "document search", graph: "knowledge graph", both: "search + graph", chat: "small talk" };
 const OUTCOME_LABEL = {
   correct: "correct", correct_abstain: "correct: I don't know", leak: "leak", draft: "used draft",
   stale: "outdated", unsupported: "made up", wrong: "wrong", over_abstain: "needless I don't know",
@@ -93,7 +93,11 @@ function renderUsers() {
 function selectUser(id) {
   state.user = id;
   renderUsers();
-  $("thread").append(el("div", { class: "hint", style: "text-align:center" }, `Now asking as ${me().name} (${me().title})`));
+  // Show only the latest switch: replace the previous note if nothing was asked since.
+  const note = el("div", { class: "hint switch-note", style: "text-align:center" }, `Now asking as ${me().name} (${me().title})`);
+  const last = $("thread").lastElementChild;
+  if (last && last.classList.contains("switch-note")) last.replaceWith(note);
+  else $("thread").append(note);
   if (state.view === "knowledge") loadKnowledge();
 }
 
@@ -168,7 +172,7 @@ function renderTrace(r) {
 function renderAnswer(r, { compare = true } = {}) {
   const card = el("article", { class: "answer" + (r.mode === "naive" ? " naive" : "") + (r.abstained ? " abstained" : "") });
   card.append(el("div", { class: "answer-head" },
-    el("span", { class: "badge " + r.mode }, r.mode === "grounded" ? "guardrails on" : "naive RAG"),
+    r.route.kind === "chat" ? null : el("span", { class: "badge " + r.mode }, r.mode === "grounded" ? "guardrails on" : "naive RAG"),
     el("span", { class: "badge" + (r.route.kind !== "documents" ? " graph" : "") }, ROUTE_LABEL[r.route.kind]),
     r.abstained ? el("span", { class: "badge abstain" }, "abstained") : null,
     el("span", {}, `as ${r.user.name}`),
@@ -192,6 +196,7 @@ function renderAnswer(r, { compare = true } = {}) {
       );
     })));
   }
+  if (r.route.kind === "chat") return card;  // small talk: no sources, trace or comparison
   const actions = el("div", { class: "answer-actions" }, renderTrace(r));
   if (compare && r.mode === "grounded") {
     const btn = el("button", { type: "button", class: "btn outline tiny" }, "Compare with naive RAG");
