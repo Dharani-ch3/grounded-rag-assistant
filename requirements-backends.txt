@@ -1,3 +1,2 @@
-# Optional: Neo4j graph store and Amazon Bedrock models
-neo4j>=5.20
+# Optional: Amazon Bedrock models and embeddings
 boto3>=1.34

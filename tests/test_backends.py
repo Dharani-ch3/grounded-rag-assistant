@@ -2,12 +2,8 @@ import json
 
 import httpx
 
-from assistant.backends.neo4j import Neo4jGraph
 from assistant.backends.pinecone import PineconeStore, pinecone_filter
 from assistant.backends.weaviate import WeaviateStore, weaviate_where
-from assistant.config import Settings
-from assistant.core import Assistant
-from assistant.graph import CYPHER
 from assistant.retrieval import AccessFilter
 
 NURSE = AccessFilter(("employee", "nurse"))
@@ -58,55 +54,3 @@ def test_weaviate_query_has_where_filter():
     q = seen[-1]["query"]
     assert "where: {operator: And" in q and 'valueText: ["employee", "nurse"]' in q and "ContainsAny" in q
     assert weaviate_where(AccessFilter(None)) is None
-
-
-class FakeSession:
-    def __init__(self, log, rows):
-        self.log, self.rows = log, rows
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *a):
-        return False
-
-    def run(self, cypher, params):
-        self.log.append((cypher, params))
-        return self.rows
-
-
-class FakeDriver:
-    def __init__(self, rows=()):
-        self.log, self.rows = [], list(rows)
-
-    def session(self, database=None):
-        return FakeSession(self.log, self.rows)
-
-
-def test_neo4j_runs_fixed_templates_with_parameters():
-    row = {
-        "person_id": "dev",
-        "person": "Dev Patel",
-        "title": "Finance Analyst",
-        "org": "Finance",
-        "doc_id": "expense-policy-v2",
-        "document": "Expense Reimbursement Policy",
-        "version": 2,
-    }
-    driver = FakeDriver([row])
-    graph = Neo4jGraph(driver)
-    a = Assistant(Settings(), graph_store=graph)
-    r = a.ask("ana", "Who owns the expense reimbursement policy?")
-    assert r["answer"].startswith("Dev Patel")
-    cypher, params = driver.log[-1]
-    assert cypher == CYPHER["doc_owner"] and params["doc_id"] == "expense-policy-v2" and params["guarded"] is True
-    graph.sync(a.kb)
-    assert any("MERGE (u)-[:OWNS]->(x)" in c for c, _ in driver.log)
-    synced = driver.log[-1][1]
-    assert {d["id"] for d in synced["docs"]} == set(a.kb.docs)
-
-
-def test_cypher_templates_only_use_parameters():
-    for cypher in CYPHER.values():
-        assert "{" not in cypher.replace("{id: $", "").replace("}", "") or "$" in cypher
-        assert "%s" not in cypher and "format" not in cypher

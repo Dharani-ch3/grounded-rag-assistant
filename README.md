@@ -42,7 +42,7 @@ flowchart LR
     A --> V{Grounding check<br/>per sentence}
     V -- supported --> OUT[Answer with citations]
     V -- nothing supported --> AB[I don't know<br/>+ who to ask]
-    R -- "who owns / approved / reports to?" --> G[Knowledge graph<br/>fixed Cypher templates]
+    R -- "who owns / approved / reports to?" --> G[Knowledge graph<br/>fixed lookups]
     R -- "who do I contact about X?" --> S2[Search finds the document] --> G
     G --> OUT
 ```
@@ -53,12 +53,12 @@ flowchart LR
 | **Permission-aware retrieval** | Every document has an audience (roles). The asker's roles are applied as a filter in both BM25 and vector search, and pushed down into Pinecone / Weaviate as a metadata filter. Restricted passages aren't even *counted* in the trace, so their existence isn't revealed. | [`retrieval.py`](assistant/retrieval.py), [`backends/`](assistant/backends) |
 | **Sentence-level grounding check** | Every sentence must cite a source, and it's dropped if its words aren't mostly in that source or if it has a **number, amount or percentage that isn't in the source**. Wrong numbers are the most common and most harmful hallucination in policy answers. | [`grounding.py`](assistant/grounding.py) |
 | **Abstention** | If the best passage doesn't cover the question, or no sentence survives the check, the assistant says it can't answer. When an allowed document is clearly on the same topic, it names the document's owner. | [`core.py`](assistant/core.py) |
-| **Knowledge graph for relationships** | Users, roles, departments and documents with `OWNS`, `APPROVED`, `CAN_READ`, `MEMBER_OF`, `REPORTS_TO`, `SUPERSEDES` edges. The model never writes Cypher: questions map to fixed, parameterized templates, so there's nothing to inject. The same access predicate is inside every template. | [`graph.py`](assistant/graph.py), [`router.py`](assistant/router.py) |
+| **Knowledge graph for relationships** | Users, roles, departments and documents with `OWNS`, `APPROVED`, `CAN_READ`, `MEMBER_OF`, `REPORTS_TO`, `SUPERSEDES` edges. The model never writes graph queries: questions map to a fixed set of lookups where only the parameters change, so there's nothing to inject. Every lookup that returns documents applies the same access rule as search. | [`graph.py`](assistant/graph.py), [`router.py`](assistant/router.py) |
 | **Governance** | New documents start as drafts. Only knowledge admins can approve, and never their own documents. Every question, edit and approval goes to an audit log. | [`core.py`](assistant/core.py) |
 
-Click any answer's **How this answer was built** to see the route, the retrieved passages with their BM25 and vector ranks, what was filtered out, the per-sentence grounding verdicts and, for graph answers, the exact Cypher template and parameters:
+Click any answer's **How this answer was built** to see the route, the retrieved passages with their BM25 and vector ranks, what was filtered out, the per-sentence grounding verdicts and, for graph answers, the exact lookup and its parameters:
 
-![A graph answer with its trace and Cypher template](docs/graph-answer.png)
+![A graph answer with its trace and graph lookup](docs/graph-answer.png)
 
 | Unapproved draft: refused vs quoted | Knowledge graph (hover to trace links) |
 |---|---|
@@ -95,9 +95,8 @@ Every external piece sits behind a small interface, and the in-memory defaults n
 | Answer model | `offline`: quotes the best sentences, no model | **Amazon Bedrock** (Converse API), Anthropic Claude, OpenAI, Ollama (local) | `ASSISTANT_PROVIDER` |
 | Embeddings | Local feature hashing | Bedrock Titan, OpenAI, Ollama | `ASSISTANT_EMBEDDER` |
 | Vector store | In-memory | **Pinecone**, **Weaviate** (access filter pushed into the query) | `ASSISTANT_VECTOR_STORE` |
-| Graph store | In-memory | **Neo4j** (same templates as real Cypher) | `ASSISTANT_GRAPH_STORE` |
 
-The Neo4j and Weaviate adapters are tested for real: a CI job starts both as containers and runs the full evaluation against them. Pinecone is a hosted service, so its adapter is tested against a mocked HTTP API. LLM answers go through the same grounding check as offline ones; the tests use a fake model that invents a number and an unsupported claim, and check that both are dropped.
+The Weaviate adapter is tested for real: a CI job starts Weaviate as a container and runs the full evaluation against it. Pinecone is a hosted service, so its adapter is tested against a mocked HTTP API. LLM answers go through the same grounding check as offline ones; the tests use a fake model that invents a number and an unsupported claim, and check that both are dropped.
 
 ## Quick start
 
@@ -117,10 +116,10 @@ python -m assistant.cli eval              # tuning set
 python -m assistant.cli eval --holdout    # held-out set
 ```
 
-With Neo4j and Weaviate (Docker):
+With Weaviate (Docker):
 
 ```bash
-docker compose up --build                 # assistant + Neo4j + Weaviate
+docker compose up --build                 # assistant + Weaviate
 ```
 
 With a real model, for example Bedrock:
@@ -162,11 +161,11 @@ assistant/
   knowledge.py     documents, people directory, the access policy (one function)
   retrieval.py     BM25 + vectors + reciprocal rank fusion, access filter as data
   grounding.py     extractive answerer and the per-sentence grounding check
-  graph.py         knowledge graph, Cypher templates, in-memory implementation
+  graph.py         knowledge graph and its fixed lookups
   router.py        graph vs documents vs both; optional LLM routing from a fixed menu
   evaluation.py    naive vs guardrails scoring with automatic error classes
   gateway.py       Bedrock, Claude, OpenAI, Ollama behind one interface
-  backends/        Pinecone, Weaviate, Neo4j adapters
+  backends/        Pinecone and Weaviate adapters
   api.py  bridge.py  mcp_server.py  cli.py  static/
 knowledge/         sample documents, directory, evaluation sets
 tests/             unit tests, API tests, live backend tests (CI)

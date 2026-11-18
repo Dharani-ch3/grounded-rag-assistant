@@ -27,7 +27,6 @@ class Settings:
     provider: str = "offline"  # offline | openai | anthropic | bedrock | ollama
     embedder: str = "hashing"  # hashing | openai | ollama | bedrock
     vector_store: str = "memory"  # memory | pinecone | weaviate
-    graph_store: str = "memory"  # memory | neo4j
     llm_router: bool = False  # let the model pick graph intents (from a fixed menu)
     openai_model: str = "gpt-4o-mini"
     openai_embed_model: str = "text-embedding-3-small"
@@ -57,7 +56,6 @@ def get_settings() -> Settings:
         provider=env("ASSISTANT_PROVIDER", "offline").lower(),
         embedder=env("ASSISTANT_EMBEDDER", "hashing").lower(),
         vector_store=env("ASSISTANT_VECTOR_STORE", "memory").lower(),
-        graph_store=env("ASSISTANT_GRAPH_STORE", "memory").lower(),
         llm_router=env("ASSISTANT_LLM_ROUTER", "false").lower() in {"1", "true", "yes"},
         openai_model=env("OPENAI_MODEL", "gpt-4o-mini"),
         openai_embed_model=env("OPENAI_EMBED_MODEL", "text-embedding-3-small"),

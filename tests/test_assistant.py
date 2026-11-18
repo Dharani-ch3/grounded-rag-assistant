@@ -71,7 +71,7 @@ def test_documents_list_and_read_respect_access(assistant):
 def test_graph_answers(assistant):
     r = ask(assistant, "ana", "Who owns the expense reimbursement policy?")
     assert r["answer"].startswith("Dev Patel") and r["graph"]["path"][0]["rel"] == "OWNS"
-    assert "$doc_id" in r["graph"]["cypher"] and r["graph"]["params"]["doc_id"] == "expense-policy-v2"
+    assert "OWNS" in r["graph"]["lookup"] and r["graph"]["params"]["doc_id"] == "expense-policy-v2"
     r = ask(assistant, "ana", "Which documents can nurses read?")
     assert "Patient Intake Procedure" in r["answer"] and "v2) , " not in r["answer"]
     assert "Paid Time Off Policy (v2)" not in r["answer"]  # archived versions aren't listed

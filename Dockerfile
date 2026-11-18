@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
-# Set --build-arg BACKENDS=true to include the Neo4j driver and boto3 (Bedrock).
+# Set --build-arg BACKENDS=true to include boto3 (Amazon Bedrock).
 ARG BACKENDS=false
 COPY requirements.txt requirements-backends.txt ./
 RUN pip install --no-cache-dir -r requirements.txt \

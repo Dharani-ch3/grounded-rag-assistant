@@ -23,7 +23,7 @@ from typing import Any
 
 from .config import Settings, get_settings
 from .gateway import LLMProvider, get_embedder, get_provider
-from .graph import GraphStore, MemoryGraph, explain
+from .graph import MemoryGraph, explain
 from .grounding import Source, extractive_answer, verify
 from .knowledge import Document, KnowledgeBase, KnowledgeError, User
 from .retrieval import AccessFilter, HybridRetriever, MemoryVectorStore, VectorStore
@@ -70,13 +70,11 @@ class Assistant:
         settings: Settings | None = None,
         kb: KnowledgeBase | None = None,
         vector_store: VectorStore | None = None,
-        graph_store: GraphStore | None = None,
     ) -> None:
         self.settings = settings or get_settings()
         root = Path(self.settings.knowledge_path)
         self.kb = kb or KnowledgeBase.load(root)
-        self.memory_graph = MemoryGraph(self.kb)
-        self.graph: GraphStore = graph_store or self._graph_store()
+        self.graph = MemoryGraph(self.kb)
         self.retriever = HybridRetriever(self.kb, get_embedder(self.settings), vector_store or self._vector_store())
         suggestions = root / "suggestions.json"
         self.suggestions: dict[str, list[dict[str, str]]] = (
@@ -95,15 +93,6 @@ class Assistant:
 
             return WeaviateStore.from_env()
         return MemoryVectorStore()
-
-    def _graph_store(self) -> GraphStore:
-        if self.settings.graph_store == "neo4j":
-            from .backends.neo4j import Neo4jGraph
-
-            g = Neo4jGraph.from_env()
-            g.sync(self.kb)
-            return g
-        return self.memory_graph
 
     # ---------- helpers ----------
 
@@ -399,7 +388,6 @@ class Assistant:
                 self.kb.add(doc)
         except KnowledgeError as exc:
             raise ValueError(str(exc)) from exc
-        self._sync_graph()
         self._log(author.id, "add_document", doc_id=doc.id, supersedes=supersedes)
         return self._doc_info(doc, author)
 
@@ -417,17 +405,11 @@ class Assistant:
                 self.kb.approve(doc_id, approver.id)
         except KnowledgeError as exc:
             raise ValueError(str(exc)) from exc
-        self._sync_graph()
         self._log(approver.id, "approve", doc_id=doc_id, archived=doc.supersedes)
         return self._doc_info(doc, approver)
 
-    def _sync_graph(self) -> None:
-        sync = getattr(self.graph, "sync", None)
-        if callable(sync):
-            sync(self.kb)
-
     def graph_snapshot(self, user_id: str) -> dict[str, Any]:
-        return self.memory_graph.snapshot(self.user(user_id))
+        return self.graph.snapshot(self.user(user_id))
 
     def users(self) -> list[dict[str, Any]]:
         out = []

@@ -9,54 +9,29 @@ graph:
     (Role)-[:CAN_READ]->(Document)      (Document)-[:BELONGS_TO]->(Org)
     (Document)-[:SUPERSEDES]->(Document)
 
-The model never writes graph queries. A question is mapped to one of the fixed templates in
-`CYPHER` and only its parameters vary, so there is nothing to inject. `MemoryGraph` answers
-them in Python (the default and the browser demo); `backends.neo4j.Neo4jGraph` runs the same
-Cypher against Neo4j and returns rows with the same keys.
+The model never writes graph queries. A question is mapped to one of the fixed lookups in
+`LOOKUPS` and only its parameters vary, so there is nothing to inject. Every lookup that
+returns documents applies the same access rule as document search.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any
 
 from .knowledge import Document, KnowledgeBase, User
 
-# Shared access predicate. With $guarded = false (naive mode, for comparison) it is a no-op.
-ACCESS = (
-    "(NOT $guarded OR (d.status = 'approved' AND d.superseded_by IS NULL AND any(r IN d.audience WHERE r IN $roles)))"
-)
+_ACCESS = "Only documents that are approved, current, and readable by one of the asker's roles."
 
-CYPHER: dict[str, str] = {
-    "doc_owner": f"""MATCH (u:User)-[:OWNS]->(d:Document {{id: $doc_id}})
-WHERE {ACCESS}
-MATCH (u)-[:MEMBER_OF]->(o:Org)
-RETURN u.id AS person_id, u.name AS person, u.title AS title, o.name AS org,
-       d.id AS doc_id, d.title AS document, d.version AS version""",
-    "doc_approver": f"""MATCH (u:User)-[:APPROVED]->(d:Document {{id: $doc_id}})
-WHERE {ACCESS}
-MATCH (u)-[:MEMBER_OF]->(o:Org)
-RETURN u.id AS person_id, u.name AS person, u.title AS title, o.name AS org,
-       d.id AS doc_id, d.title AS document, d.version AS version""",
-    "role_documents": f"""MATCH (:Role {{id: $role}})-[:CAN_READ]->(d:Document)
-WHERE {ACCESS}
-MATCH (d)-[:BELONGS_TO]->(o:Org)
-RETURN d.id AS doc_id, d.title AS document, d.version AS version, o.name AS org
-ORDER BY document""",
-    "user_manager": """MATCH (u:User {id: $user_id})-[:REPORTS_TO]->(m:User)-[:MEMBER_OF]->(o:Org)
-RETURN u.name AS subject, m.id AS person_id, m.name AS person, m.title AS title, o.name AS org""",
-    "org_members": """MATCH (u:User)-[:MEMBER_OF]->(o:Org {id: $org_id})
-RETURN u.id AS person_id, u.name AS person, u.title AS title, o.name AS org
-ORDER BY person""",
-    "user_documents": f"""MATCH (u:User {{id: $user_id}})-[:OWNS]->(d:Document)
-WHERE {ACCESS}
-RETURN u.name AS subject, d.id AS doc_id, d.title AS document, d.version AS version
-ORDER BY document""",
+# Plain-language description of each fixed lookup, shown in the answer trace.
+LOOKUPS: dict[str, str] = {
+    "doc_owner": "Find the person who OWNS the document, and the department they're a MEMBER_OF. " + _ACCESS,
+    "doc_approver": "Find the person who APPROVED the document, and the department they're a MEMBER_OF. " + _ACCESS,
+    "role_documents": "List the documents the role CAN_READ, with the department each BELONGS_TO. " + _ACCESS,
+    "user_manager": "Find the person this user REPORTS_TO, and that person's department.",
+    "org_members": "List the people who are a MEMBER_OF the department.",
+    "user_documents": "List the documents this person OWNS. " + _ACCESS,
 }
-
-
-class GraphStore(Protocol):
-    def run(self, intent: str, params: dict[str, Any]) -> list[dict[str, Any]]: ...
 
 
 @dataclass
@@ -74,7 +49,7 @@ class GraphAnswer:
     text: str
     rows: list[dict[str, Any]]
     path: list[Edge]
-    cypher: str
+    lookup: str
     params: dict[str, Any]
     doc_ids: list[str] = field(default_factory=list)
 
@@ -85,7 +60,7 @@ class GraphAnswer:
 
 
 class MemoryGraph:
-    """In-process graph built from the knowledge base. Runs the CYPHER templates' logic in Python."""
+    """In-process graph built from the knowledge base. Runs the fixed lookups in `LOOKUPS`."""
 
     def __init__(self, kb: KnowledgeBase) -> None:
         self.kb = kb
@@ -181,12 +156,14 @@ def _doc_label(row: dict[str, Any]) -> str:
 
 def explain(intent: str, params: dict[str, Any], rows: list[dict[str, Any]], kb: KnowledgeBase) -> GraphAnswer:
     """Turn template rows into an answer sentence and the graph path behind it."""
-    cypher = CYPHER[intent]
+    lookup = LOOKUPS[intent]
+    if not params.get("guarded", True) and _ACCESS in lookup:
+        lookup = lookup.replace(_ACCESS, "Guardrails off: no access or lifecycle check.")
     shown = {k: v for k, v in params.items() if k != "guarded"}
     path: list[Edge] = []
     doc_ids = [r["doc_id"] for r in rows if "doc_id" in r]
     if not rows:
-        return GraphAnswer(intent, "", [], [], cypher, shown, [])
+        return GraphAnswer(intent, "", [], [], lookup, shown, [])
     r0 = rows[0]
     if intent in {"doc_owner", "doc_approver"}:
         verb = "owns" if intent == "doc_owner" else "approved"
@@ -217,4 +194,4 @@ def explain(intent: str, params: dict[str, Any], rows: list[dict[str, Any]], kb:
         path = [Edge(r0["subject"], "OWNS", _doc_label(r), "User", "Document") for r in rows]
     else:
         raise ValueError(intent)
-    return GraphAnswer(intent, text, rows, path, cypher, shown, doc_ids)
+    return GraphAnswer(intent, text, rows, path, lookup, shown, doc_ids)

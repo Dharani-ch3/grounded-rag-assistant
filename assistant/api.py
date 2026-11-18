@@ -111,7 +111,6 @@ def health(a: AssistantDep) -> dict:
         "provider": s.provider,
         "embedder": s.embedder,
         "vector_store": s.vector_store,
-        "graph_store": s.graph_store,
         "auth": s.auth_enabled,
         "documents": len(a.kb.docs),
     }
